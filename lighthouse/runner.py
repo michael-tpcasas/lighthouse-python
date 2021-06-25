@@ -21,7 +21,7 @@ class LighthouseRunner(object):
         report (LighthouseReport): object with simplified report
     """
 
-    def __init__(self, url, form_factor='mobile', quiet=True,
+    def __init__(self, url, preset="desktop", form_factor=None, quiet=True,
                  additional_settings=None):
         """
         Args:
@@ -33,14 +33,14 @@ class LighthouseRunner(object):
             additional_settings (list, optional): list of additional params
         """
 
-        assert form_factor in ['mobile', 'desktop']
+        assert form_factor in [None, 'mobile', 'desktop']
 
         _, self.__report_path = tempfile.mkstemp(suffix='.json')
-        self._run(url, form_factor, quiet, additional_settings)
+        self._run(url, preset, form_factor, quiet, additional_settings)
         self.report = self._get_report()
         self._clean()
 
-    def _run(self, url, form_factor, quiet, additional_settings=None):
+    def _run(self, url, preset, form_factor, quiet, additional_settings=None):
         report_path = self.__report_path
 
         additional_settings = additional_settings or []
@@ -51,7 +51,8 @@ class LighthouseRunner(object):
                 url,
                 '--quiet' if quiet else '',
                 '--chrome-flags="--headless"',
-                '--emulated-form-factor={0}'.format(form_factor),
+                '--preset={0}'.format(preset),
+                '--form-factor={0}'.format(form_factor) if form_factor != None else '',
                 '--output=json',
                 '--output-path={0}'.format(report_path),
             ]
